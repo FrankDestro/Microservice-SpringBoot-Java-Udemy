@@ -42,6 +42,30 @@ Ele oferece uma maneira fácil de integrar balanceamento de carga em aplicativos
 
 ![image](https://github.com/user-attachments/assets/ab2a9567-8d5f-4e81-9b6e-b747f2a93200)
 
+## Open Feign 
+
+Realizar a comunicação entre API´s 
+
+```js
+@Component
+@FeignClient(name = "hr-worker",
+        path = "/workers")
+public interface WorkerFeignClient {
+
+    @GetMapping(value = "/{id}")
+    ResponseEntity<Worker> findById(@PathVariable Long id);
+
+}
+```
+
+## Eureka Server 
+
+O Eureka Server é uma parte fundamental da arquitetura de microservices, especialmente quando se utiliza o padrão de registro e descoberta de serviços. Ele é uma aplicação do Spring Cloud Netflix que atua como um servidor de registro de serviços. Em um ambiente de microservices, onde há muitos serviços sendo executados e se comunicando entre si, é importante ter uma maneira de descobrir dinamicamente onde esses serviços estão localizados na rede.
+
+O Eureka Server permite que os serviços se registrem nele, informando seu nome e endereço de rede. Assim, outros serviços podem consultar o Eureka Server para descobrir onde um serviço específico está localizado. Isso é especialmente útil em ambientes em nuvem, onde os serviços podem ser escalados dinamicamente e podem ser movidos entre diferentes máquinas ou instâncias.
+
+Em resumo, o Eureka Server fornece um registro centralizado de todos os serviços disponíveis na arquitetura de microservices e permite que outros serviços encontrem e se comuniquem com esses serviços de forma dinâmica e eficiente.
+
 
 ## RouteLocator
 
@@ -186,3 +210,5 @@ O Bulkhead permite que você limite o número de chamadas simultâneas a um serv
 ```
 
 ## Swagger OpenAPI
+
+
