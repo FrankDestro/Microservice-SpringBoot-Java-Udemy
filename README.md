@@ -109,4 +109,22 @@ resilience4j:
         maxAttempts: 5
       default:
         maxAttempts: 5
+        waitDuration: 1s
 ```
+### Circuit Breaker - FallbackMethod 
+
+Defini um método alternativo caso a falha venha a ocorrer. Deve-ser adicionar uma exception como argumento no fallbackMethod
+
+```java
+ @GetMapping("/foo-bar")
+    @Retry(name = "foo-bar", fallbackMethod = "fallbackMethod")
+    public String fooBar() {
+       looger.info("Request to foo-bar is received!");
+       var response =  new RestTemplate().getForEntity("http://localhost:8080/foo-bar", String.class);
+       return response.getBody();
+    }
+
+    public String fallbackMethod(Exception e) {
+        return "fallbackMethod foo-bar!!!";
+    }
+``` 
