@@ -84,3 +84,29 @@ Half-Open (Meio-Aberto): Neste estado, o Circuit Breaker permite que algumas cha
 
 references : https://digitalvarys.com/what-is-circuit-breaker-design-pattern/ 
               https://resilience4j.readme.io/docs/circuitbreaker
+
+### Circuit Breaker - Retry
+
+Defini o número máximo de tentativas para fazer a chamada em algum endpoint, sendo possível definir um tempo customizado para cada método.
+
+```java
+@GetMapping("/foo-bar")
+    @Retry(name = "foo-bar")
+    public String fooBar() {
+       looger.info("Request to foo-bar is received!");
+       var response =  new RestTemplate().getForEntity("http://localhost:8080/foo-bar", String.class);
+       return response.getBody();
+    }
+```
+
+application.yml
+
+```yml
+resilience4j:
+  retry:
+    instances:
+      foo-bar:
+        maxAttempts: 5
+      default:
+        maxAttempts: 5
+```
