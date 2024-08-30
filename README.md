@@ -85,9 +85,10 @@ Half-Open (Meio-Aberto): Neste estado, o Circuit Breaker permite que algumas cha
 references : https://digitalvarys.com/what-is-circuit-breaker-design-pattern/ 
               https://resilience4j.readme.io/docs/circuitbreaker
 
-### Circuit Breaker - Retry
+### Circuit Breaker - @Retry
 
-Defini o número máximo de tentativas para fazer a chamada em algum endpoint, sendo possível definir um tempo customizado para cada método.
+A anotação @Retry é usada para definir uma política de tentativa automática quando um método falha devido a uma exceção.
+Basicamente, ela permite que o método seja reexecutado um número específico de vezes antes de falhar definitivamente. Se todas as tentativas falharem, um método de fallback pode ser chamado.
 
 ```java
 @GetMapping("/foo-bar")
@@ -128,4 +129,30 @@ Defini um método alternativo caso a falha venha a ocorrer. Deve-ser adicionar u
     public String fallbackMethod(Exception e) {
         return "fallbackMethod foo-bar!!!";
     }
-``` 
+```
+
+### CircuitBreaker - @CircuitBreaker
+
+A anotação @CircuitBreaker implementa o padrão de design "Circuit Breaker". Um Circuit Breaker monitora as falhas em um método e pode abrir o circuito para impedir chamadas subsequentes ao método quando muitas falhas ocorrem em um curto período de tempo. Enquanto o circuito está aberto, as chamadas ao método falham automaticamente, e um método de fallback pode ser chamado. Depois de um tempo, o circuito pode ser fechado novamente, permitindo que novas chamadas ao método sejam feitas.
+
+```java
+    @GetMapping("/foo-bar")
+    @CircuitBreaker(name = "default", fallbackMethod = "fallbackMethod")
+    public String fooBar() {
+       looger.info("Request to foo-bar is received!");
+       var response =  new RestTemplate().getForEntity("http://localhost:8080/foo-bar", String.class);
+       return response.getBody();
+    }
+
+    public String fallbackMethod(Exception e) {
+        return "fallbackMethod foo-bar!!!";
+    }
+}
+
+```
+
+### Diferenças Principais: @Retry / @CircuitBreaker
+* @Retry: Foca em reexecutar o método várias vezes antes de considerar que ele falhou definitivamente.
+
+* @CircuitBreaker: Monitora falhas para abrir o circuito após muitas falhas seguidas, evitando novas chamadas ao método até que ele "feche" novamente.
+Ambas as anotações podem ser usadas juntas, dependendo do cenário. Por exemplo, você pode querer várias tentativas (@Retry) antes de o circuito abrir (@CircuitBreaker).
