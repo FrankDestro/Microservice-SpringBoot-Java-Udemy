@@ -110,6 +110,7 @@ resilience4j:
       default:
         maxAttempts: 5
         waitDuration: 1s
+        enableExponentialBackoff: true
 ```
 ### Circuit Breaker - FallbackMethod 
 
