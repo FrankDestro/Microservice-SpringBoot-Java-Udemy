@@ -156,3 +156,33 @@ A anotação @CircuitBreaker implementa o padrão de design "Circuit Breaker". U
 
 * @CircuitBreaker: Monitora falhas para abrir o circuito após muitas falhas seguidas, evitando novas chamadas ao método até que ele "feche" novamente.
 Ambas as anotações podem ser usadas juntas, dependendo do cenário. Por exemplo, você pode querer várias tentativas (@Retry) antes de o circuito abrir (@CircuitBreaker).
+
+### CircuitBreaker - @RateLimiter
+
+O RateLimiter é usado para limitar o número de chamadas que podem ser feitas a um serviço em um determinado período de tempo, protegendo contra sobrecargas e garantindo que o serviço não seja bombardeado com requisições.
+Isso é útil quando se quer controlar o fluxo de requisições para evitar atingir limites de API ou proteger recursos internos.
+
+```ruby
+    @GetMapping("/foo-bar")
+    @RateLimiter(name = "foo-bar-rate")
+    public String fooBar() {
+       looger.info("Request to foo-bar is received!");
+        return "Foo-Bar!!!";
+    }
+```
+
+### CircuitBreaker - @Bulkhead
+
+O Bulkhead permite que você limite o número de chamadas simultâneas a um serviço, criando "compartimentos" que isolam falhas e impedem que um subsistema sobrecarregado afete todo o sistema.
+É especialmente útil em microserviços onde você deseja evitar que um serviço monopolize todos os recursos.
+
+```ruby
+    @GetMapping("/foo-bar")
+    @Bulkhead(name = "foo-bar-bk")
+    public String fooBar() {
+       looger.info("Request to foo-bar is received!");
+        return "Foo-Bar!!!";
+    }
+```
+
+## Swagger OpenAPI
