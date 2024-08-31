@@ -300,7 +300,7 @@ public class OpenApiConfiguraiton {
 
 ### Configuração de rotas e swagger application.yml 
 
-```java
+```css
     cloud:
       gateway:
         discovery:
