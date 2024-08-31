@@ -211,4 +211,121 @@ O Bulkhead permite que você limite o número de chamadas simultâneas a um serv
 
 ## Swagger OpenAPI
 
+Documentação de API. 
+
+### Swagger documentation api 
+http://localhost:8080/v3/api-docs
+
+### Swagger UI
+http://localhost:8080/v3/swagger-ui.html 
+
+
+### Dependencia pom.xml
+
+```java
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+```
+
+### Classe para definir as configurações da OpenApi Swagger
+
+```ruby
+@OpenAPIDefinition(info =
+@Info(title = "Book Service API",
+        version = "V1",
+        description = "Documentation of Book Service API"))
+@Configuration
+public class OpenApiConfiguration {
+
+    @Bean
+    public OpenAPI customOpenApi() {
+        return new OpenAPI()
+                .components(new Components())
+                .info(new io.swagger.v3.oas.models.info.Info()
+                        .title("Book Service API")
+                        .version("V1")
+                        .license(new License()
+                                .name("Apache 2.0")
+                                .url("http://springdoc.org")
+                        )
+                );
+    }
+}
+```
+### application.yml 
+
+```yml
+springdoc:
+  swagger-ui:
+    operationsSorter: method
+    path: /swagger-ui.html
+  api-docs:
+    path: /book-service/v3/api-docs
+```
+
+## Configuração do Swagger em uma API Gateway em um ambiente de microservce. 
+
+### Classe para mapear as rotas 
+
+Classe que mapeia todas as rotas e agrupa em uma lista para gerar uma documentação de API de todos os microserviços.
+ela pega as informações definidas nas rotas no application.yml filtrando todas as rotas que contém -service e agrupa retornando uma lista.   
+
+```java
+@Configuration
+public class OpenApiConfiguraiton {
+
+    @Bean
+    @Lazy(value = false)
+    public List<GroupedOpenApi> apis (SwaggerUiConfigParameters config, RouteDefinitionLocator locator) {
+
+        List<RouteDefinition> definitions = locator.getRouteDefinitions().collectList().block();
+        definitions.stream()
+                .filter(routeDefinition ->
+                        routeDefinition.getId()
+                                .matches(".*-service"))
+                .forEach(routeDefinition -> {
+                    String name = routeDefinition.getId();
+                    config.addGroup(name);
+                    GroupedOpenApi.builder()
+                            .pathsToMatch("/" + name + "/**")
+                            .group(name).build();
+                });
+        return new ArrayList<>();
+    }
+}
+```
+
+### Configuração de rotas e swagger application.yml 
+
+```java
+    cloud:
+      gateway:
+        discovery:
+          locator:
+            enabled: true
+        routes:
+          - id: cambio-service
+            uri: lb://cambio-service
+            predicates:
+              - name: Path
+                args:
+                  pattern: /cambio-service/**
+          - id: book-service
+            uri: lb://book-service
+            predicates:
+              - name: Path
+                args:
+                  pattern: /book-service/**
+          - id: openapi
+            uri: lb://api-gateway
+            predicates:
+              - name: Path
+                args:
+                  pattern: /v3/api-docs/**
+            filters:
+              - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
+```
 
