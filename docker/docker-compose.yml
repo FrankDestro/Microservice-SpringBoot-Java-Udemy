@@ -1,0 +1,198 @@
+version: '3.9'
+
+networks:
+  book-network:
+    driver: bridge
+
+services:
+  # ====================================================================================================================
+  # NAMING-SERVER
+  # ====================================================================================================================
+  naming-server:
+    image: franklyndamaceno/naming-server:0.0.1-SNAPSHOT
+    container_name: naming-server-container
+    ports:
+      - "8761:8761"
+    networks:
+      - book-network
+    restart: unless-stopped
+  # ====================================================================================================================
+  # RABBITMQ
+  # ====================================================================================================================
+  rabbitmq:
+    image: rabbitmq:4.0-rc-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+      - book-network
+    restart: unless-stopped
+  # ====================================================================================================================
+  # ZIPKIN-DB-CASSANDRA teste
+  # ====================================================================================================================
+  zipkin-cassandra:
+    image: cassandra:3.11.3
+    container_name: zipkin-cassandra
+    environment:
+      - CASSANDRA_CLUSTER_NAME=zipkin-cluster
+      - CASSANDRA_DC=datacenter1
+      - CASSANDRA_RACK=rack1
+      - CASSANDRA_ENDPOINT_SNITCH=SimpleSnitch
+    ports:
+      - "9042:9042"
+    networks:
+      - book-network
+    volumes:
+      - ./.data/cassandra:/var/lib/cassandra
+    restart: unless-stopped
+  # ====================================================================================================================
+  # ZIPKIN
+  # ====================================================================================================================
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin_server
+    ports:
+      - "9411:9411"
+    environment:
+      - RABBIT_ADDRESSES=rabbitmq:5672
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING.RABBITMQ.USERNAME=guest
+      - SPRING.RABBITMQ.PASSWORD=guest
+      - STORAGE_TYPE=cassandra3
+      - CASSANDRA_CONTACT_POINTS=zipkin-cassandra
+      - CASSANDRA_KEYSPACE=zipkin
+      - CASSANDRA_ENSURE_SCHEMA=true
+    depends_on:
+      - rabbitmq
+      - zipkin-cassandra
+    networks:
+      - book-network
+    restart: unless-stopped
+  # ====================================================================================================================
+  # CAMBIO-DB
+  # ====================================================================================================================
+  cambio-db:
+    image: mysql:latest
+    container_name: cambio-db
+    environment:
+      TZ: America/Sao_Paulo
+      MYSQL_ROOT_PASSWORD: 1234567
+      MYSQL_USER: docker
+      MYSQL_PASSWORD : 1234567
+      MYSQL_DATABASE: cambio_service_db
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_TCP_PORT : 3308
+    ports:
+      - "3308:3308"
+    expose:
+      - "3308"
+    networks:
+      - book-network
+    restart: unless-stopped
+  # ====================================================================================================================
+  # BOOK-DB
+  # ====================================================================================================================
+  book-db:
+    image: mysql:latest
+    container_name: book-db
+    environment:
+      TZ: America/Sao_Paulo
+      MYSQL_ROOT_PASSWORD: 1234567
+      MYSQL_USER: docker
+      MYSQL_PASSWORD: 1234567
+      MYSQL_DATABASE: book_service_db
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_TCP_PORT: 3310
+    ports:
+      - "3310:3310"
+    expose:
+      - "3310"
+    networks:
+      - book-network
+    restart: unless-stopped
+  # ====================================================================================================================
+  # API-GATEWAY
+  # ====================================================================================================================
+  api-gateway:
+    image: franklyndamaceno/api-gateway:0.0.1-SNAPSHOT
+    container_name: api-gateway-container
+    ports:
+      - "8765:8765"
+    networks:
+      - book-network
+    depends_on:
+      - naming-server
+      - zipkin
+    environment:
+      MANAGEMENT.ZIPKIN.TRACING.ENDPOINT:  http://zipkin:9411/api/v2/spans
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: "http://naming-server:8761/eureka"
+    restart: unless-stopped
+  #   ====================================================================================================================
+  #   CAMBIO-SERVICE-API
+  #   ====================================================================================================================
+  cambio-service-api:
+    image: franklyndamaceno/cambio-service-api
+    build:
+      context: ../cambio-service
+      dockerfile: DockerFile
+    container_name: cambio-service-api
+    environment:
+      TZ: America/Sao_Paulo
+      MANAGEMENT.ZIPKIN.TRACING.ENDPOINT:  http://zipkin:9411/api/v2/spans
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://naming-server:8761/eureka"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://cambio-db:3308/cambio_service_db?useSSL=false&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: "docker"
+      SPRING_DATASOURCE_PASSWORD: "1234567"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
+      SPRING_JPA_SHOW_SQL: "true"
+      SPRING_JPA_PROPERTIES_DIALECT: "org.hibernate.dialect.MySQL9Dialect"
+      SPRING_FLYWAY_URL: "jdbc:mysql://cambio-db:3308/"
+      SPRING_FLYWAY_SCHEMAS: "cambio_service_db"
+      SPRING_FLYWAY_USER: "docker"
+      SPRING_FLYWAY_PASSWORD: "1234567"
+    ports:
+      - "8000:8000"
+    networks:
+      - book-network
+    restart: unless-stopped
+  #   ====================================================================================================================
+  #   BOOK-SERVICE-API
+  #   ====================================================================================================================
+  book-service-api:
+    image: franklyndamaceno/book-service-api
+    build:
+      context: ../book-service
+      dockerfile: DockerFile
+    container_name: book-service-api
+    environment:
+      TZ: America/Sao_Paulo
+      MANAGEMENT.ZIPKIN.TRACING.ENDPOINT:  http://zipkin:9411/api/v2/spans
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://naming-server:8761/eureka"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://book-db:3310/book_service_db?useSSL=false&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: "docker"
+      SPRING_DATASOURCE_PASSWORD: "1234567"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
+      SPRING_JPA_SHOW_SQL: "true"
+      SPRING_JPA_PROPERTIES_DIALECT: "org.hibernate.dialect.MySQL9Dialect"
+      SPRING_FLYWAY_URL: "jdbc:mysql://book-db:3310/"
+      SPRING_FLYWAY_SCHEMAS: "book_service_db"
+      SPRING_FLYWAY_USER: "docker"
+      SPRING_FLYWAY_PASSWORD: "1234567"
+      ZIPKIN_SENDER_TYPE: "rabbitmq"
+      RABBIT_ADDRESSES: "rabbitmq:5672"
+      RABBIT_USER: "guest"
+      RABBIT_PASSWORD: "guest"
+    ports:
+      - "8200:8200"
+    networks:
+      - book-network
+    restart: unless-stopped
+
+volumes :
+  zipkin_data:
+

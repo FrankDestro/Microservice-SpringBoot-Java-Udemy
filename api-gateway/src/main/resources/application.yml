@@ -1,0 +1,58 @@
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+  instance:
+      instance-id: name=${spring.application.name}:instance-id=${spring.application.instance-id:${random.value}}:port=${server.port}
+      metadata-map:
+        instanceId: name=${spring.application.name}:instance-id=${spring.application.instance-id:${random.value}}:port=${server.port}
+server:
+  port: 8765
+spring:
+    application:
+        name: api-gateway
+    main:
+      web-application-type: reactive
+    output:
+      ansi:
+        enabled: ALWAYS
+    cloud:
+      gateway:
+        discovery:
+          locator:
+            enabled: true
+        routes:
+          - id: cambio-service
+            uri: lb://cambio-service
+            predicates:
+              - name: Path
+                args:
+                  pattern: /cambio-service/**
+          - id: book-service
+            uri: lb://book-service
+            predicates:
+              - name: Path
+                args:
+                  pattern: /book-service/**
+          - id: openapi
+            uri: lb://api-gateway
+            predicates:
+              - name: Path
+                args:
+                  pattern: /v3/api-docs/**
+            filters:
+              - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
+management:
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+

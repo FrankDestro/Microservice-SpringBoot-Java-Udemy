@@ -1,0 +1,52 @@
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    instance-id: name=${spring.application.name}:instance-id=${spring.application.instance-id:${random.value}}:port=${server.port}
+    metadata-map:
+      instanceId: name=${spring.application.name}:instance-id=${spring.application.instance-id:${random.value}}:port=${server.port}
+server:
+  port: 8000
+spring:
+    application:
+        name: cambio-service
+    output:
+      ansi:
+        enabled: ALWAYS
+    datasource:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3308/cambio_service_db?userTimezone=true&serverTimezone=UTC
+      username: docker
+      password: 1234567
+    jpa:
+      hibernate:
+        ddl-auto: update
+      show-sql: true
+      properties:
+          dialect: org.hibernate.dialect.MySQL9Dialect
+    flyway:
+      url: jdbc:mysql://localhost:3308/
+      schemas: cambio_service_db
+      user: docker
+      password: 1234567
+springdoc:
+  swagger-ui:
+    operationsSorter: method
+    path: /swagger-ui.html
+  api-docs:
+    path: /cambio-service/v3/api-docs
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
+management:
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+
+
