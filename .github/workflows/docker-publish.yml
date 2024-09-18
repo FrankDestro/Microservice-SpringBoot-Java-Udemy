@@ -21,15 +21,15 @@ jobs:
           java-version: '21'
           distribution: 'zulu'
           
-      # # Build Microservice Eureka Server
-      # - name: Build Eureka Naming Server Container Image
-      #   working-directory: ./naming-server
-      #   run : mvn spring-boot:build-image -DskipTests
+      # Build Microservice Eureka Server
+      - name: Build Eureka Naming Server Container Image
+        working-directory: ./naming-server
+        run : mvn spring-boot:build-image -DskipTests
       
-      # # Build Microservice Api Gateway Server
-      # - name: Build Microservice Api Gateway Server Container Image
-      #   working-directory: ./api-gateway
-      #   run : mvn spring-boot:build-image -DskipTests
+      # Build Microservice Api Gateway Server
+      - name: Build Microservice Api Gateway Server Container Image
+        working-directory: ./api-gateway
+        run : mvn spring-boot:build-image -DskipTests
 
        # Build Microservice Cambio Service Jar
       - name: Build Microservice Cambio Service Jar
