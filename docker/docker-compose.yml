@@ -32,29 +32,11 @@ services:
       - book-network
     restart: unless-stopped
   # ====================================================================================================================
-  # ZIPKIN-DB-CASSANDRA teste
-  # ====================================================================================================================
-  zipkin-cassandra:
-    image: cassandra:3.11.3
-    container_name: zipkin-cassandra
-    environment:
-      - CASSANDRA_CLUSTER_NAME=zipkin-cluster
-      - CASSANDRA_DC=datacenter1
-      - CASSANDRA_RACK=rack1
-      - CASSANDRA_ENDPOINT_SNITCH=SimpleSnitch
-    ports:
-      - "9042:9042"
-    networks:
-      - book-network
-    volumes:
-      - ./.data/cassandra:/var/lib/cassandra
-    restart: unless-stopped
-  # ====================================================================================================================
   # ZIPKIN
   # ====================================================================================================================
   zipkin:
-    image: openzipkin/zipkin
-    container_name: zipkin_server
+    image: rancher/openzipkin-zipkin:2.14.2
+    container_name: zipkin
     ports:
       - "9411:9411"
     environment:
@@ -63,13 +45,6 @@ services:
       - SPRING_RABBITMQ_PORT=5672
       - SPRING.RABBITMQ.USERNAME=guest
       - SPRING.RABBITMQ.PASSWORD=guest
-      - STORAGE_TYPE=cassandra3
-      - CASSANDRA_CONTACT_POINTS=zipkin-cassandra
-      - CASSANDRA_KEYSPACE=zipkin
-      - CASSANDRA_ENSURE_SCHEMA=true
-    depends_on:
-      - rabbitmq
-      - zipkin-cassandra
     networks:
       - book-network
     restart: unless-stopped
