@@ -328,3 +328,7 @@ public class OpenApiConfiguraiton {
             filters:
               - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
 ```
+
+### Dockerização, entrega contínua com Github Actions e muito mais.
+
+
