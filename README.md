@@ -328,4 +328,3 @@ public class OpenApiConfiguraiton {
             filters:
               - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
 ```
-##  Distributed Tracing com Docker, Zipkin, Eureka e Sleuth;
