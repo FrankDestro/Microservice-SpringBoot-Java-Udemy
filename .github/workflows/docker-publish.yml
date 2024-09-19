@@ -50,5 +50,5 @@ jobs:
        # Docker Compose Build 
       - name: Docker Compose Build 
         working-directory: ./docker
-        run : docker-compose build
+        run : docker-compose up -d
         
