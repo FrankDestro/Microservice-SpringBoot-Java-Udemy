@@ -49,7 +49,7 @@ jobs:
        # Docker Compose Build 
       - name: Docker Compose Build 
         working-directory: ./docker
-        run : docker-compose up -d
+        run : docker build
 
           
         
