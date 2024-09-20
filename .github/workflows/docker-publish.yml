@@ -69,5 +69,7 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/cambio-service-api:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/book-service-api:${{ github.run_id }}
           docker push ${{ secrets.DOCKER_USERNAME }}/book-service-api:latest
+
+          
           
 
