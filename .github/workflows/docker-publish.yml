@@ -59,7 +59,7 @@ jobs:
           docker tag ${{ secrets.DOCKER_USERNAME }}/cambio-service-api:latest ${{ secrets.DOCKER_USERNAME }}/cambio-service-api:${{ github.run_id }}
           docker tag ${{ secrets.DOCKER_USERNAME }}/book-service-api:latest ${{ secrets.DOCKER_USERNAME }}/book-service-api:${{ github.run_id }}
           
-          docker push ${{ secrets.DOCKER_USERNAME }}/api-gateway:${{ github.run_id }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/naming-server:${{ github.run_id }}
           docker push ${{ secrets.DOCKER_USERNAME }}/api-gateway:${{ github.run_id }}
           docker push ${{ secrets.DOCKER_USERNAME }}/cambio-service-api:${{ github.run_id }}
           docker push ${{ secrets.DOCKER_USERNAME }}/book-service-api:${{ github.run_id }}
