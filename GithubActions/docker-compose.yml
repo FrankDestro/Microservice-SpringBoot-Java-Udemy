@@ -9,7 +9,7 @@ services:
   # NAMING-SERVER
   # ====================================================================================================================
   naming-server:
-    image: franklyndamaceno/naming-server:0.0.1-SNAPSHOT
+    image: franklyndamaceno/naming-server:latest
     container_name: naming-server-container
     ports:
       - "8761:8761"
@@ -45,7 +45,6 @@ services:
       - SPRING_RABBITMQ_PORT=5672
       - SPRING.RABBITMQ.USERNAME=guest
       - SPRING.RABBITMQ.PASSWORD=guest
-      - STORAGE_TYPE=mem  # Você pode usar outro tipo de armazenamento, se desejar
     networks:
       - book-network
     restart: unless-stopped
@@ -95,7 +94,7 @@ services:
   # API-GATEWAY
   # ====================================================================================================================
   api-gateway:
-    image: franklyndamaceno/api-gateway:0.0.1-SNAPSHOT
+    image: franklyndamaceno/api-gateway:latest
     container_name: api-gateway-container
     ports:
       - "8765:8765"
@@ -108,51 +107,11 @@ services:
       MANAGEMENT.ZIPKIN.TRACING.ENDPOINT:  http://zipkin:9411/api/v2/spans
       EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: "http://naming-server:8761/eureka"
     restart: unless-stopped
-
-  #   ====================================================================================================================
-  #   PROMETHEUS
-  #   ====================================================================================================================
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus-bookplace
-    networks:
-      - book-network
-    volumes:
-      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./data/prometheus:/prometheus
-    ports:
-      - "9091:9090"
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.enable-lifecycle'
-    user: root
-    restart: unless-stopped
-  #   ====================================================================================================================
-  #   GRAFANA
-  #   ====================================================================================================================
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana-book-service
-    networks:
-      - book-network
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    volumes:
-      - grafana-storage:/var/lib/grafana
-    restart: unless-stopped
-    depends_on:
-      - prometheus
   #   ====================================================================================================================
   #   CAMBIO-SERVICE-API
   #   ====================================================================================================================
   cambio-service-api:
-    image: franklyndamaceno/cambio-service-api
-    build:
-      context: ../cambio-service
-      dockerfile: DockerFile
+    image: franklyndamaceno/cambio-service-api:latest
     container_name: cambio-service-api
     environment:
       TZ: America/Sao_Paulo
@@ -173,14 +132,11 @@ services:
     networks:
       - book-network
     restart: unless-stopped
-  #  ====================================================================================================================
-  #  BOOK-SERVICE-API
-  #  ====================================================================================================================
+  #   ====================================================================================================================
+  #   BOOK-SERVICE-API
+  #   ====================================================================================================================
   book-service-api:
-    image: franklyndamaceno/book-service-api
-    build:
-      context: ../book-service
-      dockerfile: DockerFile
+    image: franklyndamaceno/book-service-api:latest
     container_name: book-service-api
     environment:
       TZ: America/Sao_Paulo
@@ -208,5 +164,4 @@ services:
 
 volumes :
   zipkin_data:
-  grafana-storage:
 

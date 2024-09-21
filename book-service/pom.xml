@@ -63,6 +63,16 @@
         </dependency>
         <!-- RABBITMQ -->
 
+        <!-- Monitoring -->
+
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+            <version>1.13.0</version>
+        </dependency>
+
+        <!-- Monitoring -->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
@@ -122,7 +132,6 @@
             <version>3.4.0</version>
             <scope>provided</scope>
         </dependency>
-
 
         <!-- DISTRIBUTED TRACE -->
         <dependency>
