@@ -107,6 +107,14 @@
             <artifactId>flyway-mysql</artifactId>
         </dependency>
 
+        <!-- LOGBACK -->
+        <dependency>
+            <groupId>de.siegmar</groupId>
+            <artifactId>logback-gelf</artifactId>
+            <version>4.0.2</version>
+        </dependency>
+        <!-- LOGBACK -->
+
         <!--SWAGER -->
         <dependency>
             <groupId>org.springdoc</groupId>

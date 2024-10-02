@@ -1,7 +1,7 @@
 version: '3.9'
 
 networks:
-  book-network:
+  network:
     driver: bridge
 
 services:
@@ -19,18 +19,18 @@ services:
   # ====================================================================================================================
   # RABBITMQ
   # ====================================================================================================================
-  rabbitmq:
-    image: rabbitmq:4.0-rc-management-alpine
-    container_name: rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    environment:
-      - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest
-    networks:
-      - book-network
-    restart: unless-stopped
+#  rabbitmq:
+#    image: rabbitmq:4.0-rc-management-alpine
+#    container_name: rabbitmq
+#    ports:
+#      - "5672:5672"
+#      - "15672:15672"
+#    environment:
+#      - RABBITMQ_DEFAULT_USER=guest
+#      - RABBITMQ_DEFAULT_PASS=guest
+#    networks:
+#      - book-network
+#    restart: unless-stopped
   # ====================================================================================================================
   # ZIPKIN
   # ====================================================================================================================
@@ -108,7 +108,6 @@ services:
       MANAGEMENT.ZIPKIN.TRACING.ENDPOINT:  http://zipkin:9411/api/v2/spans
       EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: "http://naming-server:8761/eureka"
     restart: unless-stopped
-
   #   ====================================================================================================================
   #   PROMETHEUS
   #   ====================================================================================================================
@@ -209,4 +208,5 @@ services:
 volumes :
   zipkin_data:
   grafana-storage:
+
 
