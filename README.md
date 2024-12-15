@@ -10,6 +10,10 @@ https://martinfowler.com/articles/microservices.html
 
 https://medium.com/introducao-a-arquitetura-de-microservicos/introdu%C3%A7%C3%A3o-a-microsservi%C3%A7os-25378269e6f9
 
+## Arquitetura Desenvolvida. 
+
+![arquitetura](https://github.com/FrankDestro/Imagens-Readme/blob/main/microservice-udemy.drawio.png)
+
 ## Conceitos 
 * 1 - Spring Cloud Configuration;
 * 2 - Spring Boot Actuator;
